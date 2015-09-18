@@ -1,2 +1,2 @@
 # gps
-gps related rograms for raspberry pi
+gps related programs for raspberry pi
