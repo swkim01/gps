@@ -40,7 +40,8 @@
       var request = new XMLHttpRequest();
       request.onreadystatechange = function() {
         if(request.readyState==4 && request.status==200) {
-           gps_location = eval('('+request.responseText+')');
+           if (request.responseText != "")
+             gps_location = eval('('+request.responseText+')');
         }
       }
       request.open("GET","getLocation");
@@ -50,9 +51,11 @@
     // 위치 이동
     function setcenter() {
       if(gps_location == null) gps_ll = null;
-      else gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:5179');
-      //myView.setCenter(gps_ll);
-      marker.setPosition(gps_ll);
+      else {
+        gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:5179');
+        //myView.setCenter(gps_ll);
+        marker.setPosition(gps_ll);
+      }
     }
 
     // define epsg:5179 projection
@@ -128,14 +131,12 @@
     function init() {
         myView = new ol.View({
                 projection: projection,
-                /*projection: 'EPSG:4326',*/
                 extent: extent,
                 resolutions: resolutions,
                 maxResolution: resolutions[0],
                 zoomFactor: 1,
-                /*center : [(extent[0] + extent[2]) / 2, (extent[1] + extent[3]) / 2], */
                 center: ol.proj.transform([129.076, 35.180], 'EPSG:4326', 'EPSG:5179'),
-                zoom : 11
+                zoom : 10
         });
     
         // set map
@@ -150,9 +151,9 @@
                     projection: 'EPSG:4326',
                     coordinateFormat: ol.coordinate.createStringXY(2)
                 }),
-                new ol.control.ZoomToExtent({
-                    extent: extent
-                }),
+                //new ol.control.ZoomToExtent({
+                //    extent: extent
+                //}),
                 new ol.control.ScaleLine(),
                 new ol.control.LayerSwitcher()
             ],

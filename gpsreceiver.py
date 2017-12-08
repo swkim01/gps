@@ -20,7 +20,7 @@ class GpsReceiver(threading.Thread):
                     self.location["lon"] = getattr(data,'lon',self.location["lon"])
                     self.location["alt"] = getattr(data,'alt',self.location["alt"])
                     self.location["speed"] = getattr(data,'speed',self.location["speed"])
-                time.sleep(1.0)
+                time.sleep(1)
         except StopIteration:
             pass
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     gpsr = GpsReceiver()
     try:
         gpsr.start()
-        # gpsc now polls every .5 seconds for new data
+        # gpsc now polls every 1 seconds for new data
         while True:
             # In the main thread, every 1 seconds print the current data
             os.system('clear')
