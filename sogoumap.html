@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>OpenLayers3 Tile Map Test - Sogou Map</title>
+    
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .map {
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+    </style>
+        
+    <!-- OpenLayers 3 & Proj4js -->
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.17.1/css/ol.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.17.1/build/ol.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="javascript/ol3-layerswitcher.css" />
+    <script type="text/javascript" src="javascript/ol3-layerswitcher.js"></script>
+    <script type="text/javascript" src="javascript/china-mapcoord.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/2.2.1/proj4.js" type="text/javascript"></script>
+        
+<script type="text/javascript">
+    var gps_location;
+    var gps_ll;
+    var myView;
+    var marker;
+
+    // gps 로그 파싱
+    function refresh_location() {
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+        if(request.readyState==4 && request.status==200) {
+           if (request.responseText != "")
+             gps_location = eval('('+request.responseText+')');
+        }
+      }
+      request.open("GET","getLocation");
+      request.send();
+    }
+
+    // 위치 이동
+    function setcenter() {
+      if(gps_location == null) gps_ll = null;
+      else {
+        gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'sogou');
+        //myView.setCenter(gps_ll);
+        marker.setPosition(gps_ll);
+      }
+    }
+
+    smerc2bmerc = function(input, opt_output, opt_dimension) {
+            var output = sphericalMercator.inverse(input, opt_output, opt_dimension);
+            return baiduMercator.forward(output, output, opt_dimension).map(function(x) { return x * 256. / 250.; });
+        };
+
+    bmerc2smerc = function(input, opt_output, opt_dimension) {
+            var output = baiduMercator.inverse(input.map(function(x) { return x * 250. / 256.; }), opt_output, opt_dimension);
+            return sphericalMercator.forward(output, output, opt_dimension);
+        };
+
+    ll2bmerc = function(input, opt_output, opt_dimension) {
+            return baiduMercator.forward(input, opt_output, opt_dimension).map(function(x) { return x * 256. / 250.; });
+        };
+
+    bmerc2ll = function(input, opt_output, opt_dimension) {
+            return baiduMercator.inverse(input.map(function(x) { return x * 250. / 256.; }), opt_output, opt_dimension);
+        };
+
+    var extent = [72.004, 0.8293, 137.8347, 55.8271];
+
+    var projection = new ol.proj.Projection({
+            code: 'sogou',
+            extent: ol.extent.applyTransform(extent, ll2bmerc),
+            units: 'm'
+    });
+    ol.proj.addProjection(projection);
+    ol.proj.addCoordinateTransforms('EPSG:4326', projection, ll2bmerc, bmerc2ll);
+    ol.proj.addCoordinateTransforms('EPSG:3857', projection, smerc2bmerc, bmerc2smerc);
+
+    var resolutions = new Array(19);
+    for (var i = 0; i < 19; ++i) {
+        resolutions[i] = Math.pow(2, 17 - i);
+    }
+
+    String.prototype.format = function() {
+        var formatted = this;
+        for (var arg in arguments) {
+            formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+        }
+        return formatted;
+    };
+    // define tile layer
+    var zoomIds = [728, 727, 726, 725, 724, 723, 722, 721, 720, 719, 718, 717, 716, 715, 714, 713, 712, 711, 792];
+    function SogouTile(title='Sogou Map', visible=true, type='base', address) {
+        this.base = ol.layer.Tile;
+        var data = {
+            title : title,
+            visible : visible,
+            type : type,
+            source : new ol.source.XYZ({
+                projection: projection,
+                tileSize: 256,
+                minZoom: 0,
+                maxZoom: resolutions.length - 1,
+                tileGrid: new ol.tilegrid.TileGrid({
+                    origin: [0, 0], //extent[0], extent[1]],
+                    extent: ol.extent.applyTransform(extent, ll2bmerc),
+                    resolutions: resolutions
+                }),
+                tileUrlFunction: function (tileCoord, pixelRatio, projection) {
+                    if (tileCoord == null) return undefined;
+
+                    var s = Math.floor(Math.random() * 4);  // 0 ~ 3
+                    var z = zoomIds[tileCoord[0]];
+                    var x = tileCoord[1];
+                    var y = tileCoord[2];
+
+                    var x1;
+                    if (x >= 0) x1 = String(Math.floor(x/200));
+                    else x1 = 'M' + Math.abs(Math.floor(x/200));
+                    var y1;
+                    if (y >= 0) y1 = String(Math.floor(y/200));
+                    else y1 = 'M' + Math.abs(Math.floor(y/200));
+                    x = x1+'/'+y1+'/'+((x >= 0) ? x : ('M' + Math.abs(x)));
+                    y = (y >= 0) ? y : ('M' + Math.abs(y));
+
+                    return address.format(s,x,y,z);
+                },
+                attributions: [
+                    new ol.Attribution({ 
+                        html: ['<a href="http://map.sogou.com"><img src="http://map.sogou.com/images/logo2014/1.png"></a>']
+                    })
+                ]
+            })
+        };
+        this.base(data);
+    }
+    SogouTile.prototype = ol.layer.Tile.prototype;
+
+    var tileLayer = new SogouTile(
+        'Sogou Street Map', true, 'base',
+        'http://p{0}.go2map.com/seamless1/0/174/{3}/{1}_{2}.png?v=201523');
+    var tileLayer2 = new SogouTile(
+        'Sogou Sky Map', true, 'base',
+        'http://hbpic{0}.go2map.com/seamless/0/180/{3}/{1}_{2}.JPG?v=201523');
+    var tileLayer3 = new SogouTile(
+        'Sogou Hybrid Map', false, 'overlay',
+        'http://hbpic{0}.go2map.com/seamless/0/179/{3}/{1}_{2}.png?v=201523');
+
+    function init() {
+        myView = new ol.View({
+                projection : 'EPSG:3857',
+                center : ol.proj.transform([ 116.39, 39.92 ], 'EPSG:4326', 'EPSG:3857'),
+                zoom : 11
+        });
+    
+        // set map
+        var map = new ol.Map({
+            controls : [
+                new ol.control.Attribution({
+                    collapsible: true
+                }), 
+                new ol.control.Zoom(), 
+                new ol.control.FullScreen(),
+                new ol.control.MousePosition({
+                    projection: 'EPSG:4326',
+                    coordinateFormat: ol.coordinate.createStringXY(2)
+                }),
+                new ol.control.ScaleLine(),
+                new ol.control.LayerSwitcher()
+            ],
+            layers : [
+                new ol.layer.Group({
+                    title : 'Base Maps',
+                    layers : [
+                        tileLayer,
+                        tileLayer2
+                    ]
+                  }),
+                new ol.layer.Group({
+                    title: 'Overlay Maps',
+                    layers: [
+                        tileLayer3
+                    ]
+                })
+            ],
+            target : 'map',
+            renderer: 'canvas',
+            interactions : ol.interaction.defaults({
+                shiftDragZoom : true
+            }),
+            view : myView
+        });
+        marker = new ol.Overlay({
+          positioning: 'center-center',
+          element: document.getElementById('marker'),
+          stopEvent: false
+        });
+        map.addOverlay(marker);
+
+        //setupEvents();
+    };
+    // 이벤트 반복
+    function setupEvents() {
+        setInterval(function() {
+            refresh_location();
+            //setcenter();
+        }, 1500);
+    }
+    window.onload = function() {
+        init();
+    };
+</script>
+</head>
+<body>
+    <div id="map" class="map"></div>
+    <img id="marker" src="geolocation_marker.png" />
+</body>
+</html>
