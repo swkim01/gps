@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>OpenLayers3 Tile Map Test - Yahoo Japan Map</title>
+    
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .map {
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+    </style>
+        
+    <!-- OpenLayers 3 & Proj4js -->
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.17.1/css/ol.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.17.1/build/ol.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="javascript/ol3-layerswitcher.css" />
+    <script type="text/javascript" src="javascript/ol3-layerswitcher.js"></script>
+        
+<script type="text/javascript">
+    var gps_location;
+    var gps_ll;
+    var myView;
+    var marker;
+
+    // gps 로그 파싱
+    function refresh_location() {
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+        if(request.readyState==4 && request.status==200) {
+           if (request.responseText != "")
+             gps_location = eval('('+request.responseText+')');
+        }
+      }
+      request.open("GET","getLocation");
+      request.send();
+    }
+
+    // 위치 이동
+    function setcenter() {
+      if(gps_location == null) gps_ll = null;
+      else {
+        gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:3857');
+        //myView.setCenter(gps_ll);
+        marker.setPosition(gps_ll);
+      }
+    }
+
+    // define tile layer
+    String.prototype.format = function() {
+        var formatted = this;
+        for (var arg in arguments) {
+            formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+        }
+        return formatted;
+    };
+    function YahooJapanTile(title='YahooJapan Map', visible=true, type='base', address) {
+        this.base = ol.layer.Tile;
+        var data = {
+            title : title,
+            visible : visible,
+            type : type,
+            minzoom: 1,
+            source: new ol.source.XYZ({
+                tileUrlFunction: function (tileCoord, pixelRatio, projection) {
+                    if (tileCoord == null) return undefined;
+
+                    var z = tileCoord[0];
+                    var x = tileCoord[1];
+                    var y = tileCoord[2] + (1 << z) / 2;
+
+                    return address.format(x,y,z+1);
+                },
+                attributions: [
+                    new ol.Attribution({ 
+                        html: ['<a href="http://map.vworld.kr/map/maps.do"><img src="http://map.vworld.kr/images/v4map/map/logo.png"></a>']
+                    })
+                ]
+            })
+        };
+        this.base(data);
+    }
+    YahooJapanTile.prototype = ol.layer.Tile.prototype;
+
+    var tileLayer = new YahooJapanTile(
+        'YahooJapan Street Map', true, 'base',
+	'http://m.map.c.yimg.jp/m?r=1&x={0}&y={1}&z={2}');
+    var tileLayer2 = new YahooJapanTile(
+        'YahooJapan Sky Map', true, 'base',
+	'http://p.map.c.yimg.jp/p?r=1&x={0}&y={1}&z={2}');
+    var tileLayer3 = new YahooJapanTile(
+        'YahooJapan Terrain Map', true, 'base',
+	'http://m.map.c.yimg.jp/m?r=1&style=base:topographic&x={0}&y={1}&z={2}');
+    var tileLayer4 = new YahooJapanTile(
+        'YahooJapan Hybrid Map', false, 'overlay',
+	'http://m.map.c.yimg.jp/m?r=1&style=base:hybrid&x={0}&y={1}&z={2}');
+
+    function init() {
+        myView = new ol.View({
+                projection : 'EPSG:3857',
+                center : ol.proj.transform([ 139.7545, 35.6838 ], 'EPSG:4326', 'EPSG:3857'),
+                zoom : 14
+        });
+    
+        // set map
+        var map = new ol.Map({
+            controls : [
+                new ol.control.Attribution({
+                    collapsible: true
+                }), 
+                new ol.control.Zoom(), 
+                new ol.control.FullScreen(),
+                new ol.control.MousePosition({
+                    projection: 'EPSG:4326',
+                    coordinateFormat: ol.coordinate.createStringXY(4)
+                }),
+                new ol.control.ScaleLine(),
+                new ol.control.LayerSwitcher()
+            ],
+            layers : [
+                new ol.layer.Group({
+                    title : 'Base Maps',
+                    layers : [
+                        tileLayer,
+                        tileLayer2,
+                        tileLayer3
+                    ]
+                  }),
+                new ol.layer.Group({
+                    title: 'Overlay Maps',
+                    layers: [
+                        tileLayer4
+                    ]
+                })
+            ],
+            target : 'map',
+            renderer: 'canvas',
+            interactions : ol.interaction.defaults({
+                shiftDragZoom : true
+            }),
+            view : myView
+        });
+        marker = new ol.Overlay({
+          positioning: 'center-center',
+          element: document.getElementById('marker'),
+          stopEvent: false
+        });
+        map.addOverlay(marker);
+
+        setupEvents();
+    };
+    // 이벤트 반복
+    function setupEvents() {
+        setInterval(function() {
+            refresh_location();
+            setcenter();
+        }, 1500);
+    }
+    window.onload = function() {
+        init();
+    };
+</script>
+</head>
+<body>
+    <div id="map" class="map"></div>
+    <img id="marker" src="geolocation_marker.png" />
+</body>
+</html>

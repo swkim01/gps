@@ -48,6 +48,10 @@ Supported Maps
  * Sogou Map: BD-09 Coordinate -> 256/250 Scale Transform with base (0, 0) and (+Lon, +Lat) tile indices
  * Autonavi Map: GCJ-02 Coordinate with base (-180, 90) and (+Lon, -Lat) tile indices
 
+#### Japan Maps
+ * Japan Vector Map: WGS84 Coordinate (EPSG:900913) with base (-180, 90) and (+Lon, -Lat) tile indices
+ * Yahoo Japan Map: WGS84 Coordinate (EPSG:900913) with base (0, 0) and (+Lon, +Lat) tile indices
+
 ## Acknowledgement
 
 Thanks [@tschaub](https://github.com/tschaub/projzh) for china map coordinates.
