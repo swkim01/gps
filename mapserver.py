@@ -1,5 +1,9 @@
-#!/usr/bin/python
-from bottle import route,run,get,response,static_file,request
+#!/usr/bin/python3
+from flask import Flask, render_template
+import json
+
+app = Flask(__name__, template_folder=".", static_url_path='')
+
 try:
     import gps
 except ImportError:
@@ -16,29 +20,26 @@ else:
     gLocation={"lat":35.180, "lon":129.076, "alt":0.0, "speed":0.0}
 
 #respone json for gps location
-@get('/getLocation')
+@app.route('/getLocation')
 def get_location():
     if has_gps_module:
-        return gpsr.getLocation()
+        return json.dumps(gpsr.getLocation())
     else:
         global gLocation
-        return gLocation
+        return json.dumps(gLocation)
 
-@route('/')
+@app.route('/')
 def do_route():
-    return static_file("index.html", root=".")
+    return render_template("index.html")
 
-@route('/<filename>')
+@app.route('/<filename>')
 def do_file(filename):
-    return static_file(filename, root=".")
+    return render_template(filename)
 
-@route('/geolocation_marker.png')
-def do_marker():
-    return static_file("geolocation_marker.png", root=".")
-
-@route('/javascript/<filename>')
+@app.route('/javascript/<filename>')
 def do_js(filename):
-    return static_file(filename, root="./javascript")
+    return render_template("./javascript/"+filename)
 
-run(host='<host IP>', port=8008)
-#run(host='localhost', port=8008)
+if __name__ == '__main__':
+    app.run(host='<host IP>', port=8008)
+    #app.run(host='localhost', port=8008)
