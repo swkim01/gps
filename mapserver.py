@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-from flask import Flask, render_template
-import json
+from flask import Flask, render_template, jsonify
+#import json
 
 app = Flask(__name__, template_folder=".", static_url_path='')
 
@@ -23,10 +23,12 @@ else:
 @app.route('/getLocation')
 def get_location():
     if has_gps_module:
-        return json.dumps(gpsr.getLocation())
+        response = jsonify(gpsr.getLocation())
     else:
         global gLocation
-        return json.dumps(gLocation)
+        response = jsonify(gLocation)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 @app.route('/')
 def do_route():
@@ -41,5 +43,5 @@ def do_js(filename):
     return render_template("./javascript/"+filename)
 
 if __name__ == '__main__':
-    app.run(host='<host IP>', port=8008)
-    #app.run(host='localhost', port=8008)
+    #app.run(host='<host IP>', port=8008)
+    app.run(host='localhost', port=8008)
