@@ -3,11 +3,10 @@ East Asia Map Viewer through web server and GPS device
 
 Installation
 ------------
-1.) You have to install Python Bottle web server module.
+1.) You have to install Python Flask web server module.
 ```shell
-sudo apt-get install python-setuptools
-sudo easy_install pip
-sudo pip install bottle
+sudo apt-get install python3-pip
+sudo pip3 install flask
 ```
 2.) If you want to get gps location, install gps related packages for debian linux.
 ```shell
@@ -39,7 +38,7 @@ Supported Maps
 
 #### Korean Maps
  * Daum Map: Korea 2000/Central Belt (GRS80) Coordinate (EPSG:5181) with offset (-30000, -60000) and (+Lon, +Lat) tile indices
- * Naver Map: UTM-K (GRS80) Coordinate (EPSG:5179) with offset (+90112, +1192896) and (+Lon, +Lat) tile indices
+ * Naver Map: WGS84 Coordinate (EPSG:900913) with base (-180, 90) and (+Lon, -Lat) tile indices
  * VWorld Map: WGS84 Coordinate (EPSG:900913) with base (-180, 90) and  (+Lon, -Lat) tile indices
 
 #### China Maps
