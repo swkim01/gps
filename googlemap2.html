@@ -52,8 +52,9 @@
     function setcenter() {
       if(gps_location == null) gps_ll = null;
       else {
-        gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:3857');
-        //myView.setCenter(gps_ll);
+        //gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:3857');
+        gps_ll = [gps_location['lon'], gps_location['lat']];
+        myView.setCenter(gps_ll);
         marker.setPosition(gps_ll);
       }
     }
@@ -155,13 +156,13 @@
         });
         map.addOverlay(marker);
 
-        //setupEvents();
+        setupEvents();
     };
     // 이벤트 반복
     function setupEvents() {
         setInterval(function() {
             refresh_location();
-            //setcenter();
+            setcenter();
         }, 1500);
     }
     window.onload = function() {
