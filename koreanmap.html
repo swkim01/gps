@@ -52,7 +52,8 @@
     function setcenter() {
       if(gps_location == null) gps_ll = null;
       else {
-        gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:5181');
+        //gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:5181');
+        gps_ll = [gps_location['lon'], gps_location['lat']];
         //myView.setCenter(gps_ll);
         marker.setPosition(gps_ll);
       }

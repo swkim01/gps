@@ -52,8 +52,8 @@
     function setcenter() {
       if(gps_location == null) gps_ll = null;
       else {
-        //gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:3857');
-        gps_ll = [gps_location['lon'], gps_location['lat']];
+        gps_ll = ol.proj.transform([gps_location['lon'], gps_location['lat']], 'EPSG:4326', 'EPSG:3857');
+        //gps_ll = [gps_location['lon'], gps_location['lat']];
         myView.setCenter(gps_ll);
         marker.setPosition(gps_ll);
       }
@@ -106,9 +106,12 @@
 
     function init() {
         myView = new ol.View({
-                projection : 'EPSG:4326',
-                center : [129.076, 35.180],
-                zoom : 11
+                //projection : 'EPSG:4326',
+                //center : [129.076, 35.180],
+                //zoom : 11
+                projection : 'EPSG:3857',
+                center: ol.proj.transform([129.076, 35.180], 'EPSG:4326', 'EPSG:3857'),
+                zoom : 16
         });
     
         // set map

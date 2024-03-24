@@ -34,9 +34,9 @@ def get_location():
 def do_route():
     return render_template("index.html")
 
-@app.route('/<filename>')
+@app.route('/<filename>.html')
 def do_file(filename):
-    return render_template(filename)
+    return render_template(filename+'.html')
 
 @app.route('/javascript/<filename>')
 def do_js(filename):
