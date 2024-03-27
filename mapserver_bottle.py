@@ -34,11 +34,11 @@ def do_file(filename):
 
 @route('/geolocation_marker.png')
 def do_marker():
-    return static_file("geolocation_marker.png", root=".")
+    return static_file("geolocation_marker.png", root="./static")
 
 @route('/javascript/<filename>')
 def do_js(filename):
-    return static_file(filename, root="./javascript")
+    return static_file(filename, root="./static/javascript")
 
 run(host='<host IP>', port=8008)
 #run(host='localhost', port=8008)

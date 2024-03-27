@@ -38,9 +38,9 @@ def do_route():
 def do_file(filename):
     return render_template(filename+'.html')
 
-@app.route('/javascript/<filename>')
-def do_js(filename):
-    return render_template("./javascript/"+filename)
+#@app.route('/javascript/<filename>')
+#def do_js(filename):
+#    return render_template("./javascript/"+filename)
 
 if __name__ == '__main__':
     #app.run(host='<host IP>', port=8008)
