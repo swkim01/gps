@@ -38,7 +38,7 @@ def do_marker():
 
 @route('/javascript/<filename>')
 def do_js(filename):
-    return static_file(filename, root="./static/javascript")
+    return static_file(filename, root="./javascript")
 
 run(host='<host IP>', port=8008)
 #run(host='localhost', port=8008)

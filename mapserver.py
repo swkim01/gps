@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, send_from_directory
 #import json
 
 app = Flask(__name__, template_folder=".", static_url_path='')
@@ -38,9 +38,9 @@ def do_route():
 def do_file(filename):
     return render_template(filename+'.html')
 
-#@app.route('/javascript/<filename>')
-#def do_js(filename):
-#    return render_template("./javascript/"+filename)
+@app.route('/javascript/<filename>')
+def do_js(filename):
+    return send_from_directory("javascript", filename)
 
 if __name__ == '__main__':
     #app.run(host='<host IP>', port=8008)
