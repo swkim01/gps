@@ -150,16 +150,20 @@
 
     var tileLayer = new GoogleMapChinaTile(
         'Google Street Map', true, 'base',
-	'http://mt{0}.google.cn/vt/lyrs=m@283&hl=en&gl=cn&x={1}&y={2}&z={3}');
+	//'http://mt{0}.google.cn/vt/lyrs=m@283&hl=en&gl=cn&x={1}&y={2}&z={3}');
+	'http://mt{0}.google.com/vt/lyrs=m@283&hl=en&gl=cn&x={1}&y={2}&z={3}');
     var tileLayer2 = new GoogleMapChinaTile(
         'Google Sky Map China ', true, 'base',
-        'http://mt{0}.google.cn/vt/lyrs=s@162&hl=en&gl=cn&x={1}&y={2}&z={3}');
+        //'http://mt{0}.google.cn/vt/lyrs=s@162&hl=en&gl=cn&x={1}&y={2}&z={3}');
+        'http://mt{0}.google.com/vt/lyrs=s@162&hl=en&gl=cn&x={1}&y={2}&z={3}');
     var tileLayer3 = new GoogleMapChinaTile(
         'Google Hybrid Map China', false, 'overlay',
-	'http://mt{0}.google.cn/vt/lyrs=h@283&hl=en&gl=cn&x={1}&y={2}&z={3}');
+	//'http://mt{0}.google.cn/vt/lyrs=h@283&hl=en&gl=cn&x={1}&y={2}&z={3}');
+	'http://mt{0}.google.com/vt/lyrs=h@283&hl=en&gl=cn&x={1}&y={2}&z={3}');
     var tileLayer4 = new GoogleMapChinaTile(
         'Google Terrain Map China', false, 'overlay',
-	'http://mt{0}.google.cn/vt/lyrs=t@132,r@182&hl=en&gl=cn&x={1}&y={2}&z={3}');
+	//'http://mt{0}.google.cn/vt/lyrs=t@132,r@182&hl=en&gl=cn&x={1}&y={2}&z={3}');
+	'http://mt{0}.google.com/vt/lyrs=t@132,r@182&hl=en&gl=cn&x={1}&y={2}&z={3}');
 
     function init() {
         myView = new ol.View({
