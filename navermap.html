@@ -86,20 +86,37 @@
     }
     NaverTile.prototype = ol.layer.Tile.prototype;
 
-    var tileLayer = new NaverTile(
-        'Naver Street Map', true, 'base',
-        //'http://onetile{0}.map.naver.net/get/171/0/0/{3}/{1}/{2}/bl_vc_bg/ol_vc_an');
-        'https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=bg.ol.ts.ar.lko');
-    var tileLayer2 = new NaverTile(
-        'Naver Sky Map', true, 'base',
-        //'http://onetile{0}.map.naver.net/get/171/0/0/{3}/{1}/{2}/bl_st_bg/ol_st_rd/ol_st_an');
-        'https://map.pstatic.net/nrb/styles/satellite/{z}/{x}/{y}.png?mt=bg.ol.ts.ar.lko');
-    var tileLayer3 = new NaverTile(
-        'Naver Cadaster Map', false, 'overlay',
-        //'http://onetile{0}.map.naver.net/get/171/0/0/{3}/{1}/{2}/empty/ol_lp_cn');
-        'https://map.pstatic.net/nrb/styles/basic/{z}/{x}/{y}.png?mt=ol.sw.lp');
+    const jsonUrl = 'https://map.pstatic.net/nrb/styles/basic.json';
 
-    function init() {
+    async function fetchJsonData() {
+        try {
+            const response = await fetch(jsonUrl); // 데이터 가져오기 요청
+            if (!response.ok) {
+                throw new Error(`HTTP 오류 발생: ${response.status}`);
+            }
+            const data = await response.json(); // 응답을 JSON 객체로 파싱
+            //console.log("가져온 데이터:", data);
+            // 이제 파싱된 'data' 객체를 사용하여 웹페이지를 업데이트할 수 있습니다.
+            init(data.tiles[0]); // 데이터를 화면에 표시하는 사용자 정의 함수 호출
+        } catch (error) {
+            console.error("데이터 가져오기 중 오류 발생:", error);
+        }
+    }
+
+    function init(link) {
+        let index = link.indexOf('basic');
+        let code = link.slice(index+6,index+16);
+
+        var tileLayer = new NaverTile(
+            'Naver Street Map', true, 'base',
+            'https://map.pstatic.net/nrb/styles/basic/'+code+'/{z}/{x}/{y}.png?mt=bg.ol.ts.ar.lko');
+        var tileLayer2 = new NaverTile(
+            'Naver Sky Map', true, 'base',
+            'https://map.pstatic.net/nrb/styles/satellite/'+code+'/{z}/{x}/{y}.png?mt=bg.ol.ts.ar.lko');
+        var tileLayer3 = new NaverTile(
+            'Naver Cadaster Map', false, 'overlay',
+            'https://map.pstatic.net/nrb/styles/basic/'+code+'/{z}/{x}/{y}.png?mt=ol.sw.lp');
+
         myView = new ol.View({
                 projection : 'EPSG:3857',
                 center: ol.proj.transform([129.076, 35.180], 'EPSG:4326', 'EPSG:3857'),
@@ -163,7 +180,7 @@
         }, 1500);
     }
     window.onload = function() {
-        init();
+        fetchJsonData();
     };
 </script>
 </head>
