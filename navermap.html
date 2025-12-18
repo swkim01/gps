@@ -97,7 +97,7 @@
             const data = await response.json(); // 응답을 JSON 객체로 파싱
             //console.log("가져온 데이터:", data);
             // 이제 파싱된 'data' 객체를 사용하여 웹페이지를 업데이트할 수 있습니다.
-            init(data.tiles[0].slice(41,51)); // 추출코드로 맵을 표시하는 함수 호출
+            init(data.version); // 추출코드로 맵을 표시하는 함수 호출
         } catch (error) {
             console.error("데이터 가져오기 중 오류 발생:", error);
         }
